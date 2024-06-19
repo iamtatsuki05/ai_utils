@@ -1,4 +1,4 @@
-# Python-template
+# ai_utils
 
 ## How to operate docker
 ### setup
@@ -6,7 +6,7 @@
 ### docker configuration
 1. `docker compose up -d --build`
 ### Connect to and disconnect from docker
-1. connect : `docker compose exec <service name(ex:python-cpu)> bash`
+1. connect : `docker compose exec ai_utils bash`
 2. disconect : `exit`
 ### Using jupyterlab
 1. Access with a browser http://localhost:8888/lab
