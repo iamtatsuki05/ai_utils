@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["iamtatsuki05 <tatsukio0522@gmail.com>"]
 packages = [
-    { include = "project", from = "src/" },
+    { include = "ai_utils", from = "src/" },
 ]
 
 [tool.poetry.dependencies]
