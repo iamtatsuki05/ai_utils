@@ -1,6 +1,6 @@
 version: "3.2"
 services:
-  python-cpu:
+  ai_utils:
     tty: true
     stdin_open: true
     user: root

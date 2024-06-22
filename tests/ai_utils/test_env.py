@@ -1,4 +1,4 @@
-from project.env import VERSION
+from ai_utils.env import VERSION
 
 
 def test_version():
