@@ -12,11 +12,11 @@ from tenacity import (
 from ai_utils.api_client.base import AsyncResource
 
 
-class AsyncOpenAIEbeddingResource(AsyncResource):
+class AsyncOpenAISpeech2TextResource(AsyncResource):
     def __init__(
         self,
         client: Union[AsyncOpenAI, AsyncAzureOpenAI],
-        model_name: Optional[str] = 'text-embeddings-3-small',
+        model_name: Optional[str] = 'whisper-1',
         generation_config: Optional[dict[str, Any]] = None,
         **kwargs,
     ) -> None:
@@ -35,15 +35,11 @@ class AsyncOpenAIEbeddingResource(AsyncResource):
     async def call(
         self, input_data: Any, model_name: Optional[str] = None, **generation_config
     ) -> str:
-        return (
-            await self.client.embeddings.create(
-                model=self.model_name if model_name is None else model_name,
-                messages=input_data,
-                **generation_config,
-            )
-            .data[0]
-            .embedding
-        )
+        return await self.client.audio.transcriptions.create(
+            model=self.model_name if model_name is None else model_name,
+            file=input_data,
+            **generation_config,
+        ).text
 
     async def __call__(self, input_data: Any, *args, **kwargs) -> str:
         return await self.task(input_data, *args, **kwargs)
