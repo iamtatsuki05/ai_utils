@@ -33,7 +33,7 @@ class AsyncOpenAIResource(AsyncResource):
         stop=stop_after_attempt(3),
     )
     async def call(
-        self, input_data: Any, model_name: Optional[str] = None, **generation_config
+        self, input_data: dict, model_name: Optional[str] = None, **generation_config
     ) -> str:
         return (
             await self.client.chat.completions.create(
@@ -45,5 +45,5 @@ class AsyncOpenAIResource(AsyncResource):
             .message.content
         )
 
-    async def __call__(self, input_data: Any, *args, **kwargs) -> str:
+    async def __call__(self, input_data: dict, *args, **kwargs) -> str:
         return await self.task(input_data, *args, **kwargs)
