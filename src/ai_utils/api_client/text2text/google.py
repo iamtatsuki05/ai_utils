@@ -6,7 +6,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from ai_utils.api_client.base import AsyncResource
 
 
-class AsyncGoogleResource(AsyncResource):
+class AsyncGoogleChatResource(AsyncResource):
     def __init__(
         self,
         client: GenerativeModel,
@@ -27,8 +27,7 @@ class AsyncGoogleResource(AsyncResource):
                 messages=input_data,
                 **generation_config,
             )
-            .candidates[0]
-            .content
+            .text
         )
 
     async def __call__(self, input_data: Any, *args, **kwargs) -> str:
