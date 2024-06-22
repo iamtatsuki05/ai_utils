@@ -22,13 +22,10 @@ class AsyncGoogleChatResource(AsyncResource):
         stop=stop_after_attempt(3),
     )
     async def call(self, input_data: Any, **generation_config) -> str:
-        return (
-            await self.client.generate_content_async(
-                messages=input_data,
-                **generation_config,
-            )
-            .text
-        )
+        return await self.client.generate_content_async(
+            messages=input_data,
+            **generation_config,
+        ).text
 
     async def __call__(self, input_data: Any, *args, **kwargs) -> str:
         return await self.task(input_data, *args, **kwargs)
