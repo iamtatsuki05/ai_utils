@@ -1,20 +1,16 @@
+import asyncio
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 
-class APIBase(ABC):
-    @abstractmethod
-    def __init__(self, api_key: Optional[str] = None, client: Any = None):
-        pass
+class AsyncResource(ABC):
+    def __init__(self, concurrency: Optional[int] = 1) -> None:
+        self.semaphore = asyncio.Semaphore(concurrency)
+
+    async def task(self, *args, **kwargs) -> Any:
+        async with self.semaphore:
+            return await self.call(*args, **kwargs)
 
     @abstractmethod
-    def post_request(self, input_data: Any) -> Any:
-        pass
-
-    @abstractmethod
-    def get_response(self, request_id: str) -> Any:
-        pass
-
-    @abstractmethod
-    def get_status(self, request_id: str) -> Any:
+    async def call(self, *args, **kwargs) -> Any:
         pass
