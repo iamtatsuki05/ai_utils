@@ -38,7 +38,7 @@ class AsyncOpenAIEbeddingResource(AsyncResource):
         return (
             await self.client.embeddings.create(
                 model=self.model_name if model_name is None else model_name,
-                messages=input_data,
+                input=input_data,
                 **generation_config,
             )
             .data[0]
