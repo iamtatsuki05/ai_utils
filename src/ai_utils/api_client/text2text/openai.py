@@ -12,7 +12,7 @@ from tenacity import (
 from ai_utils.api_client.base import AsyncResource
 
 
-class AsyncOpenAIResource(AsyncResource):
+class AsyncOpenAIChatResource(AsyncResource):
     def __init__(
         self,
         client: Union[AsyncOpenAI, AsyncAzureOpenAI],
