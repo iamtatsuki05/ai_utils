@@ -1,37 +1,49 @@
-from typing import Any, Optional, AsyncIterator
+from typing import Any, Optional, Union
 
-from openai import AsyncOpenAI
+import openai
+from openai import AsyncAzureOpenAI, AsyncOpenAI
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
-from ai_utils.api_client.base.api_base import APIBase
+from ai_utils.api_client.base import AsyncResource
 
 
-class OpenAIAPIText2Text(APIBase):
+class AsyncOpenAIResource(AsyncResource):
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        client: Optional[AsyncOpenAI] = None,
+        client: Union[AsyncOpenAI, AsyncAzureOpenAI],
         model_name: Optional[str] = 'gpt-3.5-turbo',
+        generation_config: Optional[dict[str, Any]] = None,
+        **kwargs,
     ) -> None:
-        self.__api_key = api_key
-        self.client = client if client is not None else AsyncOpenAI(api_key=self.__api_key)
+        self.client = client
+        self.model_name = model_name
+        self.generation_config = generation_config
+        super().__init__(**kwargs)
 
-    def post_request(self, input_data: Any) -> Any:
-        return self.client.create_completion(**input_data)
+    @retry(
+        retry=retry_if_exception_type(
+            (openai.error.APIConnectionError, openai.error.RateLimitError)
+        ),
+        wait=wait_exponential(multiplier=60, min=60, max=240),
+        stop=stop_after_attempt(3),
+    )
+    async def call(
+        self, input_data: Any, model_name: Optional[str] = None, **generation_config
+    ) -> str:
+        return (
+            await self.client.chat.completions.create(
+                model=self.model_name if model_name is None else model_name,
+                messages=input_data,
+                **generation_config,
+            )
+            .choices[0]
+            .message.content
+        )
 
-    def get_response(self, request_id: str) -> Any:
-        return self.client.get_completion(request_id)
-
-
-    def _preprocess(self, input_data: Any) -> Any:
-        return input_data
-
-    def _postprocess(self, output_data: Any) -> Any:
-        return output_data
-
-    def call(self, input_data: Any) -> Any:
-        self._preprocess(input_data)
-        output_data = self.post_request(input_data)
-        return self._postprocess(output_data)
-
-    def __call__(self, input_data: Any) -> Any:
-        return self.call(input_data)
+    async def __call__(self, input_data: Any, *args, **kwargs) -> str:
+        return await self.task(input_data, *args, **kwargs)
